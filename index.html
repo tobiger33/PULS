@@ -606,6 +606,26 @@
 .sticky-score:not(:has(+.journey-scroll))::after{content:none}
 @media(max-height:770px){.puls-experience .sticky-score{--score-size:96px;--score-height:117px;--score-number:32px}}
 @media(max-height:620px){.puls-experience .sticky-score{--score-size:81px;--score-height:100px;--score-number:28px}.puls-experience .sticky-score .score-trigger .score-toggle-label{font-size:9px}}
+
+.puls-widget-wrap{position:relative;flex:none;min-width:0}
+.puls-widget-wrap .puls-widget{width:100%}
+.weekly-trigger{position:absolute;left:16px;bottom:16px;z-index:2;background:#285d94;border-color:#ffffff40;color:#ecfff9;font-size:10px}
+.weekly-trigger:hover{background:#3675b5}
+.weekly-preview{width:min(340px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;border:0;border-radius:24px;padding:24px;color:var(--ink);box-shadow:0 24px 80px #072e6540}
+.weekly-preview::backdrop{background:#0c234a55;backdrop-filter:blur(3px)}
+.weekly-preview h2{font-size:23px;line-height:1.2;letter-spacing:-.5px;margin:8px 20px 24px 0}
+.weekly-preview form{margin:0}
+.weekly-close{position:absolute;right:15px;top:13px;border:0;background:#f0f4fa;color:#45617f;width:32px;height:32px;border-radius:50%;font-size:23px;line-height:1}
+.weekly-comparison{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.weekly-comparison>div{display:flex;flex-direction:column;gap:7px}
+.weekly-comparison span{font-size:11px;color:var(--muted)}
+.weekly-comparison b{font-size:36px;letter-spacing:-1.2px;line-height:1;color:#12386b}
+.weekly-comparison small{font-size:12px;font-weight:500;letter-spacing:0;color:var(--muted);margin-left:3px}
+.weekly-comparison .weekly-arrow{font-size:23px;color:#a1b1c8}
+.weekly-gain{color:#087b69;background:#edf8f4;border-radius:20px;padding:7px 10px;font-size:11px;font-weight:700;display:table;margin:18px 0 12px}
+.weekly-chart{width:100%;height:auto;display:block}
+.weekly-dates{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin:3px 0 18px}
+.weekly-demo-note{font-size:10px;line-height:1.4;color:var(--muted);margin:0 0 15px}
 </style></head>
 <body><div class="appframe">
 <aside class="rail">
@@ -958,7 +978,20 @@ function trend(){return cfg.trend?`<svg class="sparkline" viewBox="0 0 330 90" p
 function bankLogo(){return `<span class="dbicon"></span> Deutsche Bank`}
 function bottomBar(){return `<div class="homenav"><button class="active"><b>⌂</b>Übersicht</button><button onclick="toast('Zahlungen sind nicht Teil des Prototyps')"><b>↔</b>Zahlungen</button><button onclick="toast('Depot-Demo nicht implementiert')"><b>▥</b>Investieren</button><button onclick="toast('Profil-Demo nicht implementiert')"><b>☻</b>Profil</button></div>`}
 function header(){return `<div class="puls-header"><button class="back" onclick="back()" aria-label="Zurück" title="Zurück">←</button><strong>Deutsche Bank</strong><button class="xbtn" onclick="openSources()" aria-label="Manage financial data sources" title="Financial data sources">⊞</button></div>`}
-function home(){return `<section class="phone-section"><div class="app-top"><div class="brandline">${bankLogo()}<button class="roundbtn" onclick="toast('Demo: keine Benachrichtigungen')">♧</button></div><h2>Hallo, Lena.</h2><p>Mittwoch, 11. November</p></div><div class="homebody"><div><div class="balance-label">GESAMTÜBERSICHT</div><div class="total">13.050 €</div><div class="sub">Deine Konten und Depots im Überblick</div></div><div class="account-mini"><div>Girokonto<strong>4.850 €</strong></div><div>Depot<strong>8.200 €</strong></div></div><div class="labelrow"><span class="mainlabel">Für dich</span><small>Persönliche Einblicke</small></div><button class="puls-widget ${cfg.size==='compact'?'compact':''}" onclick="go('overview')" aria-label="PULS Financial Health öffnen">${trend()}<div class="wtop"><span>◉ &nbsp;PULS · Financial Health</span><span style="opacity:.75">↗</span></div><div class="wmain">${cfg.score?`<span class="widgetscore">${measuredOverall()}<small>/100</small></span>`:`<span class="widgetscore" style="font-size:22px">Dein PULS</span>`}<div class="wtext">${hasSource('cash')?'Additional savings included.':st.verified?'Deine Notreserve ist vollständig.':'Du baust finanzielle Stabilität auf.'}<br><span style="color:#fff;font-weight:700">${hasSource('cash')?'Financial picture updated':st.verified?'Simulation reviewed':'1 next step available'}</span></div></div><div class="wbottom"><span class="weekly">${st.verified?'Aktualisierte Demo-Bewertung':'Provisional baseline · demo'}</span><span class="open">Details öffnen →</span></div></button><div class="other-row"><span style="display:flex;align-items:center"><span class="other-icon">▤</span><span>FinanzPlaner<br><small>Einnahmen & Ausgaben</small></span></span><span>›</span></div><div class="other-row"><span style="display:flex;align-items:center"><span class="other-icon">◫</span><span>Karten & Services<br><small>Alle Funktionen</small></span></span><span>›</span></div><div class="grow"></div></div>${bottomBar()}</section>`}
+function weeklyTrendPreview(){
+ const current=measuredOverall(),previous=(current-.8).toFixed(1);
+ return `<dialog class="weekly-preview" id="weeklyTrendDialog" aria-labelledby="weeklyTrendTitle"><form method="dialog"><button class="weekly-close" aria-label="Close weekly trend">×</button></form><div class="p19-eyebrow">ILLUSTRATIVE WEEK</div><h2 id="weeklyTrendTitle">Your week at a glance.</h2><div class="weekly-comparison"><div><span>Last week</span><b>${previous}</b></div><span class="weekly-arrow" aria-hidden="true">→</span><div><span>This week</span><b>${current}<small>/100</small></b></div></div><div class="weekly-gain">↗ +0.8 points this week</div><svg class="weekly-chart" viewBox="0 0 300 115" role="img" aria-label="Illustrative score trend rising from ${previous} to ${current} over one week"><path d="M10 95H290 M10 60H290 M10 25H290" stroke="#e7edf6" fill="none"/><path d="M10 92L57 86L103 65L150 70L197 48L243 43L290 20L290 105L10 105Z" fill="#eaf2ff"/><path d="M10 92L57 86L103 65L150 70L197 48L243 43L290 20" fill="none" stroke="#1764c8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="290" cy="20" r="5" fill="#1764c8" stroke="white" stroke-width="2"/></svg><div class="weekly-dates"><span>4 Nov</span><span>11 Nov</span></div><p class="weekly-demo-note">Mock preview · illustrative history, not measured progress.</p><form method="dialog"><button class="p19-button">Back to overview <span>→</span></button></form></dialog>`;
+}
+function openWeeklyTrend(){
+ const dialog=document.getElementById('weeklyTrendDialog'),glass=document.querySelector('.glass');
+ if(!dialog||!glass)return;
+ const box=glass.getBoundingClientRect(),width=Math.min(340,box.width-24);
+ dialog.style.width=width+'px';dialog.showModal();
+ const height=dialog.getBoundingClientRect().height;
+ dialog.style.margin='0';dialog.style.left=(box.left+(box.width-width)/2)+'px';
+ dialog.style.top=Math.max(16,Math.min(innerHeight-height-16,box.top+(box.height-height)/2))+'px';
+}
+function home(){return `<section class="phone-section"><div class="app-top"><div class="brandline">${bankLogo()}<button class="roundbtn" onclick="toast('Demo: keine Benachrichtigungen')">♧</button></div><h2>Hallo, Lena.</h2><p>Mittwoch, 11. November</p></div><div class="homebody"><div><div class="balance-label">GESAMTÜBERSICHT</div><div class="total">13.050 €</div><div class="sub">Deine Konten und Depots im Überblick</div></div><div class="account-mini"><div>Girokonto<strong>4.850 €</strong></div><div>Depot<strong>8.200 €</strong></div></div><div class="labelrow"><span class="mainlabel">Für dich</span><small>Persönliche Einblicke</small></div><div class="puls-widget-wrap"><button class="puls-widget ${cfg.size==='compact'?'compact':''}" onclick="go('overview')" aria-label="PULS Financial Health öffnen">${trend()}<div class="wtop"><span>◉ &nbsp;PULS · Financial Health</span><span style="opacity:.75">↗</span></div><div class="wmain">${cfg.score?`<span class="widgetscore">${measuredOverall()}<small>/100</small></span>`:`<span class="widgetscore" style="font-size:22px">Dein PULS</span>`}<div class="wtext">${hasSource('cash')?'Additional savings included.':st.verified?'Deine Notreserve ist vollständig.':'Du baust finanzielle Stabilität auf.'}<br><span style="color:#fff;font-weight:700">${hasSource('cash')?'Financial picture updated':st.verified?'Simulation reviewed':'1 next step available'}</span></div></div><div class="wbottom"><span class="weekly" ${cfg.trend?'style="visibility:hidden" aria-hidden="true"':''}>${st.verified?'Aktualisierte Demo-Bewertung':'Provisional baseline · demo'}</span><span class="open">Details öffnen →</span></div></button>${cfg.trend?`<button class="weekly weekly-trigger" onclick="openWeeklyTrend()" aria-label="View illustrative weekly score trend">+0.8 this week ↗</button>`:''}</div><div class="other-row"><span style="display:flex;align-items:center"><span class="other-icon">▤</span><span>FinanzPlaner<br><small>Einnahmen & Ausgaben</small></span></span><span>›</span></div><div class="other-row"><span style="display:flex;align-items:center"><span class="other-icon">◫</span><span>Karten & Services<br><small>Alle Funktionen</small></span></span><span>›</span></div><div class="grow"></div></div>${bottomBar()}${weeklyTrendPreview()}</section>`}
 function overview(){
   const active=dimensions.find(d=>d.id===st.selected)||dimensions[0];
   const val=st.detailMode?dimensionValue(active):measuredOverall();
