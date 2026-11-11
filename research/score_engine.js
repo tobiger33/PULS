@@ -1,0 +1,237 @@
+/**
+ * PULS Financial Health – research prototype v0.2.0 (2026-11-11)
+ * Transparent deterministic calculations. NOT validated, calibrated or suitable
+ * for regulated financial advice or production decisions.
+ * No external dependencies. node >= 18.
+ */
+'use strict';
+const METHOD_VERSION = 'PULS-RESEARCH-0.2.0';
+const WEIGHTS = Object.freeze({foundation:.35, behavior:.25, future:.30, knowledge:.10});
+const EVIDENCE_MIN = .65;
+const OVERALL_MIN = .70;
+const clamp=(n,lo=0,hi=100)=>Math.min(hi,Math.max(lo,n));
+const round=n=>Math.round(n*10)/10;
+const own=(o,k)=>Object.prototype.hasOwnProperty.call(o||{},k);
+const number=x=>typeof x==='number'&&Number.isFinite(x)?x:null;
+const nonnegative=x=>number(x)!==null&&x>=0?x:null;
+const indicator=(id,weight,value,explanation,reason='')=>({id,weight,value:value===null||value==='NA'?value:round(clamp(value)),explanation,reason});
+const normalize=(parts,minimum=EVIDENCE_MIN)=>{
+  const applicable=parts.filter(p=>p.value!=='NA');
+  const possible=applicable.reduce((s,p)=>s+p.weight,0);
+  const observed=applicable.filter(p=>p.value!==null);
+  const seen=observed.reduce((s,p)=>s+p.weight,0);
+  const coverage=possible>0?seen/possible:0;
+  const mean=seen>0?observed.reduce((s,p)=>s+p.weight*p.value,0)/seen:null;
+  return {score:coverage>=minimum&&mean!==null?round(mean):null,coverage:round(coverage*100),parts,applicable:possible>0,internalMean:mean===null?null:round(mean)};
+};
+const statusScore=(status,lookup)=>status==='not_applicable'?'NA':status!=null&&own(lookup,status)?lookup[status]:null;
+function moneyAccounts(profile){
+  const accounts=[...(profile.accounts||[])];const seen=new Set();
+  let cash=0, unverified=0, nonLiquid=0, duplicates=0, stale=[];
+  for(const a of accounts){
+    if(!a.id)throw new Error('Missing account id');
+    if(seen.has(a.id)){duplicates++;continue}seen.add(a.id);
+    if(nonnegative(a.balance)===null)continue;
+    if(a.liquid===true){if(a.verified===true)cash+=a.balance;else unverified+=a.balance;}
+    else nonLiquid+=a.balance;
+    if(a.stale===true)stale.push(a.id);
+  }
+  return {verifiedLiquid:round(cash),unverifiedLiquid:round(unverified),nonLiquid:round(nonLiquid),duplicates,stale};
+}
+function finances(profile){
+  const records=[...(profile.months||[])].slice(-6);
+  const valid=records.filter(m=>[m.income,m.essential,m.discretionary].every(v=>nonnegative(v)!==null));
+  const avg=(a,key)=>a.length?a.reduce((s,m)=>s+m[key],0)/a.length:null;
+  const debt=(profile.debts||[]).filter(d=>nonnegative(d.balance)!==null);
+  const debtPayment=profile.debtsReviewed===true?debt.reduce((s,d)=>s+(nonnegative(d.monthlyPayment)||0),0):null;
+  const debtBalance=debt.reduce((s,d)=>s+d.balance,0);
+  const income=avg(valid,'income'),essential=avg(valid,'essential'),discretionary=avg(valid,'discretionary');
+  const cash=moneyAccounts(profile);
+  const surplus=income===null||debtPayment===null?null:income-essential-discretionary-debtPayment;
+  const nMonths=valid.length;
+  return {income,essential,discretionary,debtPayment,debtBalance,surplus,records,valid,nMonths,cash,
+    emergencyMonths:profile.accountsReviewed===true&&essential&&essential>0?cash.verifiedLiquid/essential:null,
+    debtServiceRatio:debtPayment!==null&&income&&income>0?debtPayment/income:null,
+    cashflowMargin:surplus!==null&&income&&income>0?surplus/income:null};
+}
+function computeFoundation(p,f,opts){
+  const target=opts.reserveTargetMonths||3;
+  const buffer=f.emergencyMonths===null?null:clamp(f.emergencyMonths/target*100);
+  const cf=f.cashflowMargin===null?null:clamp(25+375*f.cashflowMargin);
+  const dsr=f.debtServiceRatio===null?null:clamp(100-250*f.debtServiceRatio);
+  let costly=null;
+  if(p.debtsReviewed===true){
+    const max=Math.max(0,...(p.debts||[]).filter(x=>x.balance>0).map(x=>nonnegative(x.apr)).filter(x=>x!==null));
+    const unknown=(p.debts||[]).some(x=>x.balance>0&&nonnegative(x.apr)===null);
+    costly=unknown?null:max>=.15?0:max>=.08?50:100;
+  }
+  return normalize([
+    indicator('liquid_buffer',.40,buffer,'Verified accessible savings / necessary monthly expenses, compared with adjustable target.'),
+    indicator('free_cash_flow',.25,cf,'Average monthly income less spending and debt service; heuristic score at -6.7%≈0, 0%≈25, 20%≈100.'),
+    indicator('debt_service',.20,dsr,'Monthly debt payments / monthly income; 0%→100, 40%→0.'),
+    indicator('costly_debt',.15,costly,'Highest disclosed debt APR: <8%→100, 8–<15%→50, >=15%→0; this is a prototype rule.',p.debtsReviewed?'':'Debt inventory not confirmed')
+  ]);
+}
+function computeBehavior(p,f){
+  const a=f.records;
+  const saving=a.length>=3?100*a.filter(m=>number(m.netSaving)!==null&&m.netSaving>0).length/a.length:null;
+  const billRecords=a.filter(m=>nonnegative(m.billsDue)!==null&&nonnegative(m.billsLate)!==null&&m.billsDue>0);
+  const bills=billRecords.length>=3?100*(1-billRecords.reduce((s,m)=>s+m.billsLate,0)/billRecords.reduce((s,m)=>s+m.billsDue,0)):null;
+  const overdraft=a.length>=3&&a.every(m=>typeof m.unplannedOverdraft==='boolean')?100*a.filter(m=>!m.unplannedOverdraft).length/a.length:null;
+  return normalize([
+    indicator('net_saving_frequency',.55,saving,'Share of observed months with positive new net savings (not internal account transfers).'),
+    indicator('bills_on_time',.30,bills,'Ratio of bills paid on time; requires at least 3 months of observations.'),
+    indicator('avoid_unplanned_overdraft',.15,overdraft,'Share of observed months without unplanned account overdraft.')
+  ]);
+}
+function computeFuture(p){
+  const z=p.future||{};
+  // These flags are declared summaries, NOT proof that an insurance contract is suitable.
+  const protection=statusScore(z.incomeProtection,{reviewed_sufficient:100,reviewed_partial:55,reviewed_gap:15,no_cover:15});
+  const retirement=statusScore(z.retirementPlan,{reviewed_on_track:100,reviewed_partial:55,started_no_review:40,no_plan:15});
+  const diversification=z.invested===false?'NA':number(z.largestHoldingShare)!==null?clamp(100*(1-z.largestHoldingShare)):null;
+  const evidence=normalize([
+    indicator('income_protection',.45,protection,'Self-reported review status. Cannot confirm contract adequacy without professional assessment.'),
+    indicator('retirement_readiness',.45,retirement,'Self-reported retirement planning status; not a personalized pension-gap calculation.'),
+    indicator('concentration',.10,diversification,'100×(1 – largest holding share). Prototype diversification proxy; not a risk diagnosis.')
+  ]);
+  if(z.applicabilityReviewed===true&&evidence.parts.every(part=>part.value==='NA'))return {...evidence,notApplicable:true,coverage:100};
+  return evidence;
+}
+function monthsUntil(asof,ym){
+  if(!/^\d{4}-\d{2}$/.test(ym||''))return null;
+  const [y,m]=ym.split('-').map(Number);
+  if(m<1||m>12)return null;
+  const d=new Date(asof+'T00:00:00Z');
+  if(Number.isNaN(d.getTime()))return null;
+  return (y-d.getUTCFullYear())*12+(m-(d.getUTCMonth()+1));
+}
+function computeLife(p){
+  if(p.noUpcomingGoalsConfirmed===true)return {...normalize([]),notApplicable:true,coverage:100};
+  const goals=p.goals||[];
+  if(!goals.length)return normalize([indicator('goal_preparedness',1,null,'No goals documented and absence not confirmed.')]);
+  const parts=goals.map((g,i)=>{
+    const months=monthsUntil(p.asOf,g.targetMonth);
+    const cost=nonnegative(g.cost),reserved=nonnegative(g.reserved),savings=nonnegative(g.monthlyAllocation);
+    const ready=months!==null&&months>=0&&cost!==null&&cost>0&&reserved!==null&&savings!==null;
+    const covered=ready?Math.min(1,(reserved+months*savings)/cost):null;
+    return indicator(`goal_${i+1}`,1,covered===null?null:100*covered,`Goal ${g.label||i+1}: projected earmarked funds divided by target budget. No investment return assumed.`);
+  });
+  return normalize(parts);
+}
+function computeKnowledge(p){
+  const k=p.knowledge||{};
+  const attempted=nonnegative(k.attempted),correct=nonnegative(k.correct);
+  const score=attempted!==null&&correct!==null&&attempted>=3&&correct<=attempted&&k.independentAssessment===true?100*correct/attempted:null;
+  return normalize([indicator('independent_knowledge_assessment',1,score,'At least 3 independently assessed questions; custom PULS questions not equivalent to OECD certified scoring.')]);
+}
+function computeScore(profile,options={}){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(profile.asOf||''))throw new Error('asOf must be YYYY-MM-DD');
+  const opts={reserveTargetMonths:3,weights:WEIGHTS,...options};
+  if(opts.reserveTargetMonths<1||opts.reserveTargetMonths>12)throw new Error('reserveTargetMonths outside 1..12');
+  const f=finances(profile);
+  // Future Readiness is ONE scored domain. Life-event readiness is a separate
+  // planning diagnostic INSIDE it, not an independent health-score component.
+  // A planned holiday must not add points or penalize the current health score.
+  const futureLongTerm=computeFuture(profile);
+  const lifeEvents=computeLife(profile);
+  const future={...futureLongTerm,
+    components:{longTerm:futureLongTerm,lifeEvents},
+    planningScored:false,
+    planningExplanation:'Plans inform scenarios/recommendations, not the current score. Real commitments affect verified cash flow and debt indicators.'
+  };
+  const domains={
+    foundation:computeFoundation(profile,f,opts),
+    behavior:computeBehavior(profile,f),
+    future,
+    knowledge:computeKnowledge(profile)
+  };
+  const w=opts.weights;
+  const applicable=Object.entries(w).filter(([name])=>!domains[name].notApplicable);
+  const denominator=applicable.reduce((s,[,weight])=>s+weight,0);
+  const evidenceFraction=applicable.reduce((s,[name,weight])=>s+weight*(domains[name].coverage/100),0)/denominator;
+  const included=applicable.filter(([name])=>domains[name].score!==null);
+  const sumIncluded=included.reduce((s,[,weight])=>s+weight,0);
+  const total=sumIncluded?round(included.reduce((s,[name,weight])=>s+weight*domains[name].score,0)/sumIncluded):null;
+  const rawValid=f.nMonths>=3&&domains.foundation.score!==null&&domains.behavior.score!==null&&evidenceFraction>=OVERALL_MIN;
+  const sourceScopeKnown=profile.financialPictureReviewed===true;
+  const unverified=f.cash.unverifiedLiquid>0;
+  const state=!rawValid?'INSUFFICIENT_DATA':sourceScopeKnown&&!unverified&&!f.cash.stale.length&&evidenceFraction>=.90?'ASSESSABLE':'PROVISIONAL';
+  // Non-compensability: high knowledge/wealth cannot mask immediate cash fragility.
+  // Thresholds are explicit research hypotheses, not clinical or regulatory standards.
+  let cappedTotal=total;const caps=[];
+  if(f.emergencyMonths!==null&&f.emergencyMonths<1){cappedTotal=Math.min(cappedTotal,69);caps.push('accessible_buffer_below_one_month');}
+  if(f.surplus!==null&&f.surplus<0&&f.records.some(m=>m.billsLate>0)){cappedTotal=Math.min(cappedTotal,60);caps.push('negative_cashflow_and_late_bill');}
+  const composite=rawValid?cappedTotal:null;
+  const missing=Object.entries(domains).filter(([,d])=>d.score===null&&!d.notApplicable).map(([id])=>id);
+  const safeguards={
+    noHistory:f.nMonths<3,
+    financialPictureIncomplete:!sourceScopeKnown,
+    unverifiedLiquidAssets:unverified,
+    staleAccounts:f.cash.stale,
+    noSubstituteForCFPB:true,
+    oneMonthFluctuationsNotTrend:true
+  };
+  return {method:METHOD_VERSION,asOf:profile.asOf,profileId:profile.id,overall:composite,state,caps,
+    coverage:round(evidenceFraction*100),domains,missing,safeguards,metrics:{...f,cash:f.cash},
+    context:{reserveTargetMonths:opts.reserveTargetMonths,weights:{...w}}};
+}
+function selectRecommendation(profile,result){
+  const f=result.metrics;const impact=e=>e?round(e):null;
+  const base={profileId:profile.id,asOf:profile.asOf,actionStatus:'SUGGESTED_NOT_EXECUTED',isPersonalizedRegulatedAdvice:false};
+  function rec(id,title,signal,question,action,why,priority,amount=null){return {...base,id,title,signal,question,action,why,priority,suggestedMonthly:amount};}
+  if(profile.financialPictureReviewed!==true||f.cash.unverifiedLiquid>0){
+    return rec('complete_sources','Complete your financial picture','External cash, liabilities or pensions may not be fully represented.','Do you have other accounts or loans not shown here?','Connect or confirm accounts, deposits, and debts.','Unknown amounts are not zero. The current score may need to be restated.',1);
+  }
+  if(f.records.some(m=>m.billsLate>0)){
+    return rec('late_bills','Stabilize your upcoming payments','At least one late bill appears in the history.','Was the payment delay caused by timing or insufficient funds?','Review due dates and essential outgoings; avoid unverified automatic changes.','Missed due dates are immediate warning signs.',1);
+  }
+  if(f.surplus!==null&&f.surplus<0){
+    return rec('negative_cashflow','Restore monthly breathing room',`Approx. €${Math.abs(Math.round(f.surplus))} monthly gap.`, 'Are these costs temporary or recurring?', 'Review cash outflows and obligations before new savings commitments.', 'A new standing order is inappropriate when monthly cash flow is negative.',2);
+  }
+  const highCost=(profile.debts||[]).filter(d=>d.balance>0&&d.apr>=.15);
+  if(highCost.length){
+    return rec('high_cost_debt','Review expensive borrowing',`At least one disclosed debt has an APR ≥15%.`,'Do you have any penalties or contractual repayment restrictions?','Compare repayment options, fees and emergency liquidity; consult a qualified adviser if needed.','High interest may outweigh the expected benefit of increasing investment contributions.',3);
+  }
+  if(result.domains.foundation.score!==null&&f.emergencyMonths!==null&&f.emergencyMonths<(result.context.reserveTargetMonths||3)){
+    const target=(result.context.reserveTargetMonths||3)*f.essential;
+    const gap=Math.max(0,target-f.cash.verifiedLiquid);
+    const feasible=f.surplus!==null&&f.surplus>0?Math.floor(Math.min(gap/12,Math.max(0,f.surplus*.40))/10)*10:null;
+    return rec('cash_reserve','Build accessible reserves',`${round(f.emergencyMonths)} months covered; target ${result.context.reserveTargetMonths} months (illustrative).`,'Is any accessible emergency cash held at another institution?',feasible>=10?'Consider a savings-plan draft, review affordability and confirm separately.':'Review affordability first; no new saving commitment suggested.','Uses accessible cash, not shares, houses or illiquid investments. Target is adjustable to personal situation.',4,feasible>=10?feasible:null);
+  }
+  if(profile.future?.incomeProtection==null||profile.future?.retirementPlan==null){
+    return rec('future_info','Check your future protection','Pension and/or income protection information is missing.','Do you have employer, public or private coverage outside connected accounts?','Add known benefits and documentation before assessing a gap.','Unknown policy information cannot be scored as missing protection.',5);
+  }
+  if(result.domains.future.components.lifeEvents.score!==null&&result.domains.future.components.lifeEvents.score<70){
+    return rec('goal_plan','Plan for an upcoming life goal','A confirmed goal is not fully funded by its target date.','Would you prefer to adjust the date, budget or monthly allocation?','Compare feasible scenarios without automatically moving money.','Planned spending is not itself a bad financial behavior.',6);
+  }
+  if(result.domains.behavior.score!==null&&result.domains.behavior.score<70){
+    return rec('saving_routine','Understand savings variability','Positive net savings are not consistent across observed months.','Were months without savings due to essential costs, income changes or planned spending?','Only after the answer, explore a flexible routine if useful.','Missing savings can be intentional and should not automatically be labelled irresponsible.',7);
+  }
+  if(result.domains.knowledge.score===null){
+    return rec('knowledge_baseline','Establish a knowledge baseline','No independent knowledge assessment is available.','Would you like to answer three short questions?','Offer an optional independent question set and a relevant lesson.','Completing a lesson is not evidence of stronger financial resilience.',8);
+  }
+  return rec('maintain','No urgent change identified','Available data do not show a pressing next action.',null,'Offer a monthly review or explore upcoming goals.','No need to invent a task for engagement.',99);
+}
+function compareSnapshots(previous,current,eventType='observed_change'){
+  if(previous.method!==current.method) return {kind:'METHODOLOGY_CHANGE',performanceDelta:null,visibleDelta:null,reason:'Do not compare scores calculated under different versions.'};
+  if(eventType==='new_source'||eventType==='historical_backfill'||eventType==='data_correction')return {kind:'DATA_RESTATEMENT',performanceDelta:null,visibleDelta:null,rawDifference:previous.overall!=null&&current.overall!=null?round(current.overall-previous.overall):null,reason:'Measurement changed; do not label as user improvement.'};
+  if(previous.overall===null||current.overall===null)return {kind:'INSUFFICIENT_DATA',performanceDelta:null,visibleDelta:null};
+  return {kind:'OBSERVED_CHANGE',performanceDelta:round(current.overall-previous.overall),visibleDelta:round(current.overall-previous.overall),reason:'Observed change; not proof that PULS caused it.'};
+}
+function weightSensitivity(profile,opts={}){
+  const base=computeScore(profile,opts);
+  const trials=[];
+  for(const dimension of Object.keys(WEIGHTS))for(const direction of [-1,1]){
+    const weights={...WEIGHTS};weights[dimension]+=direction*.10;
+    if(weights[dimension]<=0)continue;
+    const sum=Object.values(weights).reduce((a,b)=>a+b,0);for(const key in weights)weights[key]/=sum;
+    const r=computeScore(profile,{...opts,weights});trials.push({name:`${dimension} ${direction>0?'+':'-'}10pp`,value:r.overall});
+  }
+  for(const target of [2,3,6]){
+    const r=computeScore(profile,{...opts,reserveTargetMonths:target});trials.push({name:`reserve target ${target}mo`,value:r.overall});
+  }
+  const vals=trials.map(x=>x.value).filter(x=>x!==null);
+  return {baseline:base.overall,trials,range:vals.length?{min:Math.min(...vals),max:Math.max(...vals),spread:round(Math.max(...vals)-Math.min(...vals))}:null};
+}
+module.exports={METHOD_VERSION,WEIGHTS,moneyAccounts,finances,computeScore,selectRecommendation,compareSnapshots,weightSensitivity};
