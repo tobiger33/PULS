@@ -12,6 +12,8 @@ The root `index.html` is the complete standalone static app. Vercel imports the 
 - `/score-lab/` — separate research scoring sandbox.
 - `/research/` — scoring engine v0.2, five synthetic profiles, unit tests and methodology.
 
+The Wealth Journey includes three questions per level (15 total), large answer buttons, answer checking, explanations, retries and a completion screen. Each level resumes its own progress during the current browser session; refreshing resets the demo. Learning does not change the Financial Health score.
+
 ## Four scored dimensions
 
 - **Foundation (35%)**: accessible emergency savings, free cash flow, debt service and expensive borrowing.
@@ -30,7 +32,7 @@ Read [Subscore V19 specification](docs/SUBSCORES_V19.md) and [research methodolo
 ## Local testing
 
 ```bash
-node --test research/score_engine.test.js
+node --test research/score_engine.test.js tests/education.test.js
 ```
 
 All 28 research-engine unit tests passed during this version's QA. Browser checks were conducted at 1440×900, 390×844, 375×812, 320×700 and 320×568. Production readiness and scientific validation are separate work.
