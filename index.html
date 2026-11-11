@@ -576,6 +576,18 @@
  .sticky-score.detail-focus .large-ring-inner small{font-size:8px;margin-top:0}
 }
 
+
+/* Question-led subscore review: questions directly below the score. */
+.p19-method-view{overflow-y:auto;overscroll-behavior:contain}
+.p19-method-view .p19-facts{display:flex}
+.p19-question{flex:none;display:flex;flex-direction:column;padding:4px 0 0}
+.p19-question .p19-subtitle{font-size:22px;line-height:1.2;letter-spacing:-.5px;margin:0 0 18px;font-weight:760}
+.p19-question .p19-answers{gap:7px}
+.p19-question .p19-answers button{min-height:43px;padding:10px 12px;border:1px solid #e2eaf5;border-radius:11px;background:#f6f9fe;font-size:11px}
+.p19-question .p19-answers button:hover{background:#eaf2fe;border-color:#b6cdef}
+.p19-question .p19-bottom{margin-top:12px}
+@media(max-height:770px){.p19-question{padding:4px 0 0}.p19-question .p19-subtitle{font-size:20px;margin-bottom:14px}.p19-question .p19-answers button{min-height:39px;padding:8px 11px}}
+@media(max-height:625px){.p19-question{padding:4px 0 0}.p19-question .p19-subtitle{font-size:17px;margin-bottom:9px}.p19-question .p19-answers{gap:5px}.p19-question .p19-answers button{min-height:32px;padding:6px 10px;font-size:10px}.p19-question .p19-bottom{margin-top:7px}}
 </style></head>
 <body><div class="appframe">
 <aside class="rail">
@@ -1370,18 +1382,18 @@ function recommendationView(){
  const id=st.selected,d=pulsDetail(id),result=pulsResult(),sub=pulsDomain(id),state=pulsSubStage(id),choice=st.pulsSubChoices?.[id];
  if(id==='literacy'&&state==='quiz')return `<div class="insight-fixed" aria-label="Knowledge assessment, no scrolling">${pulsQuizView()}</div>`;
  const coverage=sub.coverage,score=sub.score;
- if(state==='method')return `<div class="insight-fixed" aria-label="${PULS_LABELS[id]} scoring explanation"><div class="p19-content"><div class="p19-eyebrow">SCORING EXPLAINED · ${PULS_LABELS[id].toUpperCase()}</div><h2 class="p19-title">Where this number comes from</h2><p class="p19-paragraph">Category result: <b>${score===null?'Not assessed':Math.round(score)+'/100'}</b> · indicator coverage: <b>${Math.round(coverage)}%</b>.</p><div class="p19-evidence-list">${pulsMethodRows(id,result)}</div><p class="p19-method-note">${d.why}</p><p class="p19-method-note">Model v0.2 · unvalidated thresholds · synthetic records. Missing inputs are not scored as zero. Overall weights: Foundation 35%, Behavior 25%, Future 30%, Knowledge 10%.</p><button class="p19-button" onclick="pulsSubOpen('review')">Back to this subscore <span>→</span></button></div></div>`;
+ if(state==='method')return `<div class="insight-fixed" aria-label="${PULS_LABELS[id]} scoring explanation"><div class="p19-content p19-method-view"><div class="p19-eyebrow">SCORING EXPLAINED · ${PULS_LABELS[id].toUpperCase()}</div><h2 class="p19-title">Where this number comes from</h2><p class="p19-paragraph">${d.headline} ${d.description}</p><p class="p19-paragraph">Category result: <b>${score===null?'Not assessed':Math.round(score)+'/100'}</b> · indicator coverage: <b>${Math.round(coverage)}%</b>.</p><div class="p19-measure"><div class="p19-measure-top"><span>${d.metricLabel}</span><b>${d.metricValue}</b></div><div class="p19-caption">${d.metricDetail}</div></div><div class="p19-facts">${d.facts.map(([n,v])=>`<div><span>${n}</span><b>${v}</b></div>`).join('')}</div><div class="p19-evidence-list">${pulsMethodRows(id,result)}</div><p class="p19-method-note">${d.why}</p><p class="p19-method-note">Model v0.2 · unvalidated thresholds · synthetic records. Missing inputs are not scored as zero. Overall weights: Foundation 35%, Behavior 25%, Future 30%, Knowledge 10%.</p><button class="p19-button" onclick="pulsSubOpen('review')">Back to this subscore <span>→</span></button></div></div>`;
  const saved=Boolean(st.pulsSubDrafts?.[id]);
- const head=`<div class="p19-eyebrow">${d.eyebrow}</div><h2 class="p19-title">${d.headline}</h2><p class="p19-paragraph p19-lead">${d.description}</p><div class="p19-measure"><div class="p19-measure-top"><span>${d.metricLabel}</span><b>${d.metricValue}</b></div><div class="p19-track"><i style="width:${Math.max(0,Math.min(100,d.ratio))}%"></i></div><div class="p19-caption">${d.metricDetail}</div></div>`;
+ const head=`<div class="p19-context"><div class="p19-eyebrow">${d.eyebrow}</div><h2 class="p19-title">${d.headline}</h2><p class="p19-paragraph p19-lead">${d.description}</p></div>`;
  if(id==='literacy')return `<div class="insight-fixed" aria-label="Knowledge: evidence and independent check"><div class="p19-content">${head}<div class="p19-separator"></div><div class="p19-quick-caption">OPTIONAL KNOWLEDGE CHECK</div><h3 class="p19-subtitle">Five questions. No learning points.</h3><p class="p19-paragraph">A completed Wealth Guide lesson never grants a health-score bonus. Only an assessment can replace the synthetic knowledge measurement.</p><button class="p19-button" onclick="pulsKnowledgeStart()">Start five questions <span>→</span></button><div class="p19-bottom"><button class="p19-plain" onclick="pulsSubOpen('method')">How is Knowledge calculated?</button><small>Research prototype · not a certified test</small></div></div></div>`;
  let inner='';
  if(state==='action'){
   inner=`<div class="p19-separator"></div><div class="p19-quick-caption">ONE ACTION · PERSONAL CONTEXT</div><h3 class="p19-subtitle">${d.title}</h3>${pulsSubAction(id,d,choice)}<div class="p19-bottom"><button class="p19-plain" onclick="pulsSubOpen('method')">How is this calculated?</button><button class="p19-plain" onclick="pulsSubOpen('review')">Change answer</button></div>`;
  } else {
   const options=d.options.map(([val,label])=>`<button onclick="pulsSubChoose('${val}')"><span>${label}</span><strong>›</strong></button>`).join('');
-  inner=`<div class="p19-facts">${d.facts.map(([n,v])=>`<div><span>${n}</span><b>${v}</b></div>`).join('')}</div><div class="p19-separator"></div><div class="p19-quick-caption">ONE USEFUL QUESTION</div><h3 class="p19-subtitle">${d.question}</h3><div class="p19-answers">${options}</div><div class="p19-bottom"><button class="p19-plain" onclick="pulsSubOpen('method')">How calculated?</button><button class="p19-plain" onclick="pulsSubOpen('action')">Skip question</button></div>`;
+  inner=`<section class="p19-question" aria-labelledby="p19-question-title"><h2 class="p19-subtitle" id="p19-question-title">${d.question}</h2><div class="p19-answers">${options}</div><div class="p19-bottom"><button class="p19-plain" onclick="pulsSubOpen('method')">How calculated?</button><button class="p19-plain" onclick="pulsSubOpen('action')">Skip question</button></div></section>`;
  }
- return `<div class="insight-fixed" aria-label="${PULS_LABELS[id]}: measured evidence and relevant action, no scrolling"><div class="p19-content">${head}${inner}<div class="p19-disclaimer">${st.pulsMeasurementNote==='DATA_RESTATEMENT'?'Data restatement · not financial progress':st.pulsMeasurementNote==='ASSESSMENT_UPDATE'?'Knowledge assessment updated · not a financial improvement':'Demo data · Provisional score · No financial action executed'}</div></div></div>`;
+ return `<div class="insight-fixed" aria-label="${PULS_LABELS[id]}: measured evidence and relevant action, no scrolling"><div class="p19-content ${state==='review'?'p19-question-view':''}">${state==='review'?'':head}${inner}<div class="p19-disclaimer">${st.pulsMeasurementNote==='DATA_RESTATEMENT'?'Data restatement · not financial progress':st.pulsMeasurementNote==='ASSESSMENT_UPDATE'?'Knowledge assessment updated · not a financial improvement':'Demo data · Provisional score · No financial action executed'}</div></div></div>`;
 }
 
 function toggleActionPanel(){st.actionExpanded=!st.actionExpanded;st.reasonExpanded=false;render()}
