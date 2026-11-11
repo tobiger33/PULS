@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "PULS",
+    "slug": "puls",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.puls.financialhealth"
+    },
+    "android": {
+      "package": "app.puls.financialhealth"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
+  }
+}

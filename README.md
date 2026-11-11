@@ -1,39 +1,49 @@
-# PULS — Financial Health (Hackathon Prototype)
+# PULS — Financial Health
 
-**Version V19: four evidence-driven subscores.** An interactive financial health widget in a Deutsche Bank-style banking app. **Independent concept study, not an official Deutsche Bank product.**
+Expo + React + TypeScript application for web, iOS and Android. The UI is migrated from the V19 prototype without redesigning its screens, copy, styles, scoring or interactions.
 
-## Live demo and deployment
+Independent concept study, not an official Deutsche Bank product. Financial data and connections are synthetic. There is no backend, authentication, live AI or banking integration. Refreshing the application resets its session state.
 
-Production: https://puls-rose.vercel.app
+## Run locally
 
-The root `index.html` is the complete standalone static app. Vercel imports the GitHub repository `tobiger33/PULS`, uses the default `main` branch, framework preset **Other**, no build command and root `./`. GitHub updates are normally built automatically by Vercel.
+Use Node.js 24 LTS (`nvm use` reads `.nvmrc`).
 
-- `/` — PULS V19 interface and all four subscore interactions.
-- `/score-lab/` — separate research scoring sandbox.
-- `/research/` — scoring engine v0.2, five synthetic profiles, unit tests and methodology.
-
-The Wealth Journey includes three questions per level (15 total), large answer buttons, answer checking, explanations, retries and a completion screen. Each level resumes its own progress during the current browser session; refreshing resets the demo. Learning does not change the Financial Health score.
-
-## Four scored dimensions
-
-- **Foundation (35%)**: accessible emergency savings, free cash flow, debt service and expensive borrowing.
-- **Behavior (25%)**: observed six-month saving frequency, on-time bills and unplanned overdrafts.
-- **Future Readiness (30%)**: income protection, retirement preparation and investment concentration. **Life Plans are inside Future**, but guide scenario planning rather than giving or removing score points.
-- **Knowledge (10%)**: short independent question assessment. Completed Wealth Guide lessons do not earn Financial Health points.
-
-Each detail uses a consistent, no-scroll shell: diagnosis → evidence → a useful question → relevant draft/action → calculation method. The score is recomputed through a bundled, deterministic copy of `research/score_engine.js`.
-
-## Cautions
-
-All figures are **synthetic**; this is an **unvalidated research model** (prototype score at baseline: 72/100). Data connections are simulated; an external account can restate the baseline but is not proof of improvement. Answers and saved drafts do not execute financial actions or add points. This is not regulated investment, credit or insurance advice. The prototype does not include banking APIs, live AI, authentication, security or verified consent storage.
-
-Read [Subscore V19 specification](docs/SUBSCORES_V19.md) and [research methodology](research/SCORING_METHODOLOGY.md).
-
-## Local testing
-
-```bash
-node --test research/score_engine.test.js tests/education.test.js
+```sh
+npm ci
+npm run web -- --port 8000
 ```
 
-All 28 research-engine unit tests passed during this version's QA. Browser checks were conducted at 1440×900, 390×844, 375×812, 320×700 and 320×568. Production readiness and scientific validation are separate work.
+Open `http://localhost:8000`. To start the Expo native development workflow, use `npm run ios` or `npm run android` with a compatible simulator/emulator or development build.
 
+## Shared implementation
+
+- `App.tsx`: Expo native/web entry and device safe areas.
+- `src/components/PulsSurface.tsx`: shared React DOM surface, mounted directly on web and through Expo DOM on native.
+- `src/application/`: typed application state, navigation, source/plan flows and React views.
+- `src/components/EducationQuiz.tsx`: quiz presentation with three questions per level, large answers and a fixed action footer.
+- `src/domain/education.ts`: answer checking, retries, independent level progress and completion guards.
+- `src/data/reference-data.ts`: original questions, labels, source fixtures and financial baseline data.
+- `src/styles/reference.css`: original CSS retained verbatim, followed only by host adaptations.
+- `research/score_engine.js`: unchanged deterministic score engine shared by the app and research tests, with TypeScript declarations.
+
+Native deliberately uses Expo's supported DOM component bridge (an embedded web view), rather than substituting native controls with different metrics. On phones the physical device supplies its own frame, status bar and safe areas; the lab sidebars and simulated phone frame are omitted. No remote website is required by the native bundles.
+
+## Verify
+
+```sh
+npm run typecheck
+npm test
+npm run build:web
+npm run build:ios
+npm run build:android
+```
+
+`tests/migration.test.ts` compares rendered markup, copy, attributes and inline styles against the frozen pre-migration application for home, score details, quizzes, source consent/previews and saved plans. Education tests exercise the actual shared TypeScript controller. Native export validates the bundles; it does not replace testing on a physical iPhone/Android device.
+
+## Reference and hosting
+
+`reference/puls-v19.html` is the immutable pre-migration reference from commit `78415b9`. The Git branch `codex/reference-before-expo-migration` preserves that complete repository state. The reference is not executed by the new application.
+
+Vercel builds `npm run build:web` and serves `dist/`. The build also preserves `/reference/`, `/score-lab/`, `/research/` and `/docs/`. Existing hosting: https://puls-rose.vercel.app.
+
+The four provisional score weights remain Foundation 35%, Behavior 25%, Future Readiness 30% and Knowledge 10%. Learning progress never grants Financial Health points. See [subscores](docs/SUBSCORES_V19.md) and [methodology](research/SCORING_METHODOLOGY.md).
