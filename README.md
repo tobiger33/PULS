@@ -1,50 +1,37 @@
 # PULS — Financial Health (Hackathon Prototype)
 
-A **static, interactive concept prototype** of a PULS Financial Health widget embedded in a Deutsche Bank-style banking overview. **Not an official Deutsche Bank application.**
+**Version V19: four evidence-driven subscores.** An interactive financial health widget in a Deutsche Bank-style banking app. **Independent concept study, not an official Deutsche Bank product.**
 
-## Deploy with Vercel
+## Live demo and deployment
 
-1. Import the GitHub repository `tobiger33/PULS` into Vercel.
-2. Set **Framework Preset** to **Other** (static HTML).
-3. Set **Root Directory** to `./`.
-4. Leave **Build Command** empty; use `.` as the Output Directory if Vercel asks for one.
-5. Deploy. The repository's `index.html` is the landing page.
+Production: https://puls-rose.vercel.app
 
-No API keys, database, package installation or build process are required to view the demo.
+The root `index.html` is the complete standalone static app. Vercel imports the GitHub repository `tobiger33/PULS`, uses the default `main` branch, framework preset **Other**, no build command and root `./`. GitHub updates are normally built automatically by Vercel.
 
-## Routes
+- `/` — PULS V19 interface and all four subscore interactions.
+- `/score-lab/` — separate research scoring sandbox.
+- `/research/` — scoring engine v0.2, five synthetic profiles, unit tests and methodology.
 
-- `/` — PULS V18 interactive UI, four visible financial-health dimensions.
-- `/score-lab/` — separate interactive scoring research lab.
-- `/research/` — documents, deterministic engine, synthetic personas, report generator and unit tests (source files).
+## Four scored dimensions
 
-## What's implemented
+- **Foundation (35%)**: accessible emergency savings, free cash flow, debt service and expensive borrowing.
+- **Behavior (25%)**: observed six-month saving frequency, on-time bills and unplanned overdrafts.
+- **Future Readiness (30%)**: income protection, retirement preparation and investment concentration. **Life Plans are inside Future**, but guide scenario planning rather than giving or removing score points.
+- **Knowledge (10%)**: short independent question assessment. Completed Wealth Guide lessons do not earn Financial Health points.
 
-- Centered PULS score with **Foundation, Behavior, Future Readiness and Knowledge** fragments.
-- **Future Readiness includes life-event planning**; life plans do not automatically improve the current score.
-- Minimal subscore views with personalised demo questions and recommendations.
-- Guided financial learning path and persistent AI-style input (rule-based demo, **not a live AI model**).
-- Simulated bank-data source connections and plan confirmations.
+Each detail uses a consistent, no-scroll shell: diagnosis → evidence → a useful question → relevant draft/action → calculation method. The score is recomputed through a bundled, deterministic copy of `research/score_engine.js`.
 
-## Important limitations
+## Cautions
 
-- **All amounts, accounts and user profiles are synthetic.**
-- The UI's displayed subscores are **demo values**. Its four-domain weighted display is **not directly wired to the separate `research/score_engine.js` model**.
-- The scoring engine is a preliminary research prototype, **not a validated financial-wellbeing scale**. Reference documents, weights and interpretation caveats: [Scoring methodology](research/SCORING_METHODOLOGY.md).
-- There is **no real account aggregation, financial transaction execution, live AI integration or production-grade security**.
-- This is not personalized investment or insurance advice.
+All figures are **synthetic**; this is an **unvalidated research model** (prototype score at baseline: 72/100). Data connections are simulated; an external account can restate the baseline but is not proof of improvement. Answers and saved drafts do not execute financial actions or add points. This is not regulated investment, credit or insurance advice. The prototype does not include banking APIs, live AI, authentication, security or verified consent storage.
 
-## Reproducibility
+Read [Subscore V19 specification](docs/SUBSCORES_V19.md) and [research methodology](research/SCORING_METHODOLOGY.md).
 
-With Node.js 20+:
+## Local testing
 
 ```bash
 node --test research/score_engine.test.js
-node research/generate_report.js
 ```
 
-The deterministic engine and its five synthetic profiles can be explored separately in `/score-lab/`.
+All 28 research-engine unit tests passed during this version's QA. Browser checks were conducted at 1440×900, 390×844, 375×812, 320×700 and 320×568. Production readiness and scientific validation are separate work.
 
-## Product intent
-
-A low-friction financial health widget that helps everyday banking users understand their position, consider plans, build financial literacy and take a next relevant step. The learning path is separate from financial-health measurement.
