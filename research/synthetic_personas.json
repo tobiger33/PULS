@@ -1,0 +1,562 @@
+[
+  {
+    "asOf": "2026-11-11",
+    "financialPictureReviewed": true,
+    "accountsReviewed": true,
+    "debtsReviewed": true,
+    "id": "student",
+    "label": "Student — small budget, family support",
+    "lifeStage": "student",
+    "accounts": [
+      {
+        "id": "student-db-cash",
+        "kind": "current",
+        "balance": 1250,
+        "liquid": true,
+        "verified": true
+      }
+    ],
+    "debts": [],
+    "months": [
+      {
+        "month": "2026-05",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-06",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 30,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-07",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-08",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 40,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-09",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-10",
+        "income": 1200,
+        "essential": 700,
+        "discretionary": 360,
+        "netSaving": 30,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      }
+    ],
+    "future": {
+      "incomeProtection": "not_applicable",
+      "retirementPlan": "not_applicable",
+      "invested": false,
+      "applicabilityReviewed": true
+    },
+    "goals": [
+      {
+        "label": "Vacation",
+        "targetMonth": "2027-04",
+        "cost": 900,
+        "reserved": 200,
+        "monthlyAllocation": 50
+      }
+    ],
+    "knowledge": {
+      "attempted": 5,
+      "correct": 3,
+      "independentAssessment": true
+    },
+    "noUpcomingGoalsConfirmed": false
+  },
+  {
+    "asOf": "2026-11-11",
+    "financialPictureReviewed": true,
+    "accountsReviewed": true,
+    "debtsReviewed": true,
+    "id": "first_job",
+    "label": "First salary — regular saver",
+    "lifeStage": "first_job",
+    "accounts": [
+      {
+        "id": "hire-db-cash",
+        "kind": "current",
+        "balance": 3200,
+        "liquid": true,
+        "verified": true
+      },
+      {
+        "id": "hire-depot",
+        "kind": "investment",
+        "balance": 6200,
+        "liquid": false,
+        "verified": true
+      }
+    ],
+    "debts": [],
+    "months": [
+      {
+        "month": "2026-05",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-06",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-07",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-08",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-09",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 300,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-10",
+        "income": 2700,
+        "essential": 1350,
+        "discretionary": 850,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      }
+    ],
+    "future": {
+      "incomeProtection": "reviewed_partial",
+      "retirementPlan": "started_no_review",
+      "invested": true,
+      "largestHoldingShare": 0.75
+    },
+    "goals": [
+      {
+        "label": "Moving",
+        "targetMonth": "2027-06",
+        "cost": 2800,
+        "reserved": 1000,
+        "monthlyAllocation": 200
+      }
+    ],
+    "knowledge": {
+      "attempted": 5,
+      "correct": 4,
+      "independentAssessment": true
+    }
+  },
+  {
+    "asOf": "2026-11-11",
+    "financialPictureReviewed": true,
+    "accountsReviewed": true,
+    "debtsReviewed": true,
+    "id": "freelancer",
+    "label": "Freelancer — volatile income",
+    "lifeStage": "self_employed",
+    "accounts": [
+      {
+        "id": "free-cash",
+        "kind": "current",
+        "balance": 3500,
+        "liquid": true,
+        "verified": true
+      }
+    ],
+    "debts": [
+      {
+        "id": "equipment",
+        "balance": 3200,
+        "monthlyPayment": 120,
+        "apr": 0.075
+      }
+    ],
+    "months": [
+      {
+        "month": "2026-05",
+        "income": 2900,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 200,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-06",
+        "income": 3100,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-07",
+        "income": 1500,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": true
+      },
+      {
+        "month": "2026-08",
+        "income": 3800,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 800,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-09",
+        "income": 1700,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": true
+      },
+      {
+        "month": "2026-10",
+        "income": 3500,
+        "essential": 1600,
+        "discretionary": 550,
+        "netSaving": 200,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      }
+    ],
+    "future": {
+      "incomeProtection": "reviewed_partial",
+      "retirementPlan": "started_no_review",
+      "invested": false
+    },
+    "goals": [
+      {
+        "label": "New laptop",
+        "targetMonth": "2027-02",
+        "cost": 1800,
+        "reserved": 350,
+        "monthlyAllocation": 200
+      }
+    ],
+    "knowledge": {
+      "attempted": 5,
+      "correct": 4,
+      "independentAssessment": true
+    }
+  },
+  {
+    "asOf": "2026-11-11",
+    "financialPictureReviewed": true,
+    "accountsReviewed": true,
+    "debtsReviewed": true,
+    "id": "family",
+    "label": "Family — expensive consumer debt",
+    "lifeStage": "family",
+    "accounts": [
+      {
+        "id": "family-joint",
+        "kind": "cash",
+        "balance": 5600,
+        "liquid": true,
+        "verified": true
+      },
+      {
+        "id": "family-invest",
+        "kind": "investment",
+        "balance": 15500,
+        "liquid": false,
+        "verified": true
+      }
+    ],
+    "debts": [
+      {
+        "id": "creditcard",
+        "balance": 4700,
+        "monthlyPayment": 310,
+        "apr": 0.189
+      },
+      {
+        "id": "carloan",
+        "balance": 14200,
+        "monthlyPayment": 370,
+        "apr": 0.085
+      }
+    ],
+    "months": [
+      {
+        "month": "2026-05",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 200,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-06",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-07",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 0,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-08",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-09",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-10",
+        "income": 5200,
+        "essential": 2400,
+        "discretionary": 1050,
+        "netSaving": 250,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      }
+    ],
+    "future": {
+      "incomeProtection": "reviewed_partial",
+      "retirementPlan": "reviewed_partial",
+      "invested": true,
+      "largestHoldingShare": 0.6
+    },
+    "goals": [
+      {
+        "label": "Home repairs",
+        "targetMonth": "2027-06",
+        "cost": 9000,
+        "reserved": 1800,
+        "monthlyAllocation": 380
+      }
+    ],
+    "knowledge": {
+      "attempted": 5,
+      "correct": 3,
+      "independentAssessment": true
+    }
+  },
+  {
+    "asOf": "2026-11-11",
+    "financialPictureReviewed": true,
+    "accountsReviewed": true,
+    "debtsReviewed": true,
+    "id": "asset_rich",
+    "label": "High net worth — illiquid assets",
+    "lifeStage": "wealthy",
+    "accounts": [
+      {
+        "id": "w-cash",
+        "kind": "current",
+        "balance": 3200,
+        "liquid": true,
+        "verified": true
+      },
+      {
+        "id": "w-property",
+        "kind": "property",
+        "balance": 1200000,
+        "liquid": false,
+        "verified": true
+      },
+      {
+        "id": "w-depot",
+        "kind": "investment",
+        "balance": 350000,
+        "liquid": false,
+        "verified": true
+      }
+    ],
+    "debts": [
+      {
+        "id": "property-loan",
+        "balance": 300000,
+        "monthlyPayment": 200,
+        "apr": 0.032
+      }
+    ],
+    "months": [
+      {
+        "month": "2026-05",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 400,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-06",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 500,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-07",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 400,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-08",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 500,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-09",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 400,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      },
+      {
+        "month": "2026-10",
+        "income": 7800,
+        "essential": 3700,
+        "discretionary": 2500,
+        "netSaving": 500,
+        "billsDue": 6,
+        "billsLate": 0,
+        "unplannedOverdraft": false
+      }
+    ],
+    "future": {
+      "incomeProtection": "reviewed_sufficient",
+      "retirementPlan": "reviewed_on_track",
+      "invested": true,
+      "largestHoldingShare": 0.7
+    },
+    "goals": [
+      {
+        "label": "Renovation",
+        "targetMonth": "2027-02",
+        "cost": 35000,
+        "reserved": 8500,
+        "monthlyAllocation": 1200
+      }
+    ],
+    "knowledge": {
+      "attempted": 5,
+      "correct": 5,
+      "independentAssessment": true
+    }
+  }
+]
